@@ -2,6 +2,17 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@nuxtjs/tailwindcss", "@vite-pwa/nuxt"],
+  runtimeConfig: {
+    public:{
+      service: process.env.SERVICE_URL!,
+      apikey: process.env.PUB_API_KEY!,
+    }
+  },
+  app: {
+    head: {
+      link: [{ rel: "stylesheet", href: "https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" }],
+    }
+  },
   pwa:{
     manifest: {
       "theme_color": "#fff",

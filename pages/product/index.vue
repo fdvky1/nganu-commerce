@@ -3,7 +3,10 @@
   <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
       <div class="w-full flex justify-between">
           <h2 class="text-2xl font-bold tracking-tight text-gray-900">Recomended</h2>
-          <Dropdown :categories="categories" @selected-category="getProducts"/>
+          <div class="flex gap-2 items-center">
+              <nuxt-link to="/new/category" class="bg-gray-400 text-white hover:bg-gray-500 hover:text-gray-100 rounded-lg px-3 py-2">New Category</nuxt-link>
+              <Dropdown :categories="categories" @selected-category="setProducts"/>
+          </div>
     </div>
     <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
         <div class="group relative shadow-lg bg-slate-100 p-2" v-for="product in products" :key="product.id">
@@ -15,42 +18,19 @@
 
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { Product } from "~/types/product"
 import type { Category } from "~/types/category"
+import getProducts from "~/api/product"
+import getCategories from "~/api/category"
 
-export default {
-    data(){
-        return {
-            products: [] as Product[],
-            categories: [] as Category[],
-        }
-    },
-    created(){
-        this.getCategories()
-        this.getProducts()
-    },
-    methods: {
-        getProducts(category_id = null){
-            const runtimeConfig = useRuntimeConfig();
-            fetch(runtimeConfig.public.service+`/rest/v1/products?select=id,name,price,image,description,categories(id,name)${category_id ? "&category_id=eq."+category_id : ""}`, {
-                headers: {
-                    "apikey": runtimeConfig.public.apikey
-                }
-            }).then(async res => {
-                this.products = await res.json()
-            })
-        },
-        getCategories(){
-            const runtimeConfig = useRuntimeConfig();
-            fetch(runtimeConfig.public.service+"/rest/v1/categories", {
-                headers: {
-                    "apikey": runtimeConfig.public.apikey
-                }
-            }).then(async res => {
-                this.categories = await res.json()
-            })
-        }
-    }
+const products = ref<Product[]>([])
+const categories = ref<Category[]>([])
+
+const setProducts = async (id: number|null = null) => {
+    products.value = await getProducts(id) as Product[]
 }
-</script>~/types/product
+
+setProducts()
+categories.value = await getCategories() as Category[]
+</script>

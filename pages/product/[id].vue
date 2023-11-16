@@ -1,29 +1,17 @@
 <template>
     <DetailProduct :product="product"/>
 </template>
-<script lang="ts">
+<script lang="ts" setup>
 import { Product } from '~/types/product';
-export default {
-    data(){
-        return {
-            product: Object as Product,
-        }
-    },
-    created(){
-        const id = this.$route.params.id as string
-        this.getProductById(id)
-    },
-    methods: {
-        getProductById(id: string){
-            const runtimeConfig = useRuntimeConfig();
-            fetch(runtimeConfig.public.service+`/rest/v1/products?select=name,price,image,description,categories(id,name)&id=eq.${id}`, {
-                headers: {
-                    "apikey": runtimeConfig.public.apikey
-                }
-            }).then(async res => {
-                this.product = (await res.json())[0]
-            })
-        },
-    }
+import { getProductById } from "~/api/product"
+
+const product = ref<Product>()
+const id = parseInt(useRoute().params.id as string)
+
+try {
+    product.value = await getProductById(id) as Product
+} catch (e) {
+    console.error(e)
+    navigateTo("/product")
 }
 </script>
